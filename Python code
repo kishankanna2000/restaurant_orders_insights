@@ -1,0 +1,190 @@
+# importing pandas dataframe
+import pandas as pd
+
+# loaded two datasets menu_items and order_details
+menu_items.head()
+order_details.head()
+
+# checking for null values
+order_details.isnull().sum()
+
+# dropping null values
+order_details.dropna(inplace=True)
+
+# what are the total number of items in the menu
+print('Number of items in the menu:',menu_items['item_name'].count())
+
+# What are the different categories in the menu
+print('Different categories in the menu:',list(menu_items['category'].unique()))
+
+# Give details of the cheapest item in the menu
+menu_items[menu_items['price']==menu_items['price'].min()]
+
+# Give details of the expensive item in the menu
+menu_items[menu_items['price']==menu_items['price'].max()]
+
+# What are the number of food items in different categories?
+menu_items.groupby('category')['item_name'].count().reset_index().rename(columns={'item_name':'number_of_items'})
+
+# give details of items which are less than 10 dollars
+menu_items[menu_items['price']<10]
+
+# Number of items which are less than 10 dollars
+print('Number of items which are less than 10 dollars:',menu_items[menu_items['price']<10]['item_name'].count())
+
+# what is the most expensive item in each category
+menu_items1=menu_items.groupby('category')['price'].max().reset_index()
+menu_items.merge(menu_items1,on=['category','price'])[['category','item_name','price']]
+
+#what is the least expensive item in each category
+menu_items2=menu_items.groupby('category')['price'].min().reset_index()
+menu_items.merge(menu_items2,on=['category','price'])[['category','item_name','price']]
+
+# what is the average order size
+print('What is the average order size ?',df.groupby('order_id')['item_name'].count().reset_index()['item_name'].mean().round())
+
+# Average order value
+number_of_items=df.groupby('order_id')['item_name'].count().reset_index()
+total_money_spent_in_each_order=df.groupby('order_id')['price'].sum().reset_index(
+print('Average order value:',total_money_spent_in_each_order.head()['price'].mean().round(2))
+
+# Creating a new calculated column(Part of the day)
+import numpy as np
+df['part_of_the_day'] = np.where(df['Hour'] < 13, "Morning",
+                                 np.where((df['Hour'] >= 13) & (df['Hour'] < 17), "Afternoon",
+                                          np.where((df['Hour'] >= 17) & (df['Hour'] < 20), 'Evening',
+                                                   np.where(df['Hour'] >= 20, 'Night', 'No'))))
+
+# Number of order in different times of the day
+number_of_order_by_part_of_The_day=df[['part_of_the_day','order_id']].drop_duplicates()
+number_of_order_by_part_of_The_day.groupby('part_of_the_day')['order_id'].count().reset_index().rename(columns={'order_id':'number_of_orders'})
+
+# which categories of food sell more during different parts of the day
+df[['part_of_the_day','category','order_id']].drop_duplicates().groupby(['part_of_the_day','category']).count().sort_values(['part_of_the_day','order_id'],ascending=False).rename(columns={'order_id':'number_of_orders'})
+
+# average money spent during different parts of the day
+total_money_spent_during_different_parts_of_the_day=df.groupby(['part_of_the_day','order_id'])['price'].sum().reset_index()
+total_money_spent_during_different_parts_of_the_day.groupby(['part_of_the_day'])['price'].mean().round(2).reset_index().rename(columns={'price':'average_money_paid'})
+
+# average order size during different parts of the day
+order_size_during_different_parts_of_the_day=df.groupby(['part_of_the_day','order_id'])['item_id'].count().reset_index()
+order_size_during_different_parts_of_the_day.groupby('part_of_the_day')['item_id'].mean().round(2).reset_index().rename(columns={'item_id':'average_order_size'})
+
+# what is the peak hour for our business (Number of items ordered during different hours)
+df.groupby(['Hour'])['order_id'].count().reset_index().rename(columns={'order_id':'number_of_items_ordered'})
+
+# Number of restaurant visits during different hours of the day
+df[['Hour','order_id']].drop_duplicates().groupby('Hour')['order_id'].count().reset_index().rename(columns={'order_id':'Number of restaurant visits'})
+
+# average amount spent during different hours of the day
+df.groupby(['Hour','order_id'])['price'].sum().reset_index().groupby('Hour')['price'].mean().round(2).reset_index()
+
+# creating a calculated column
+df['part_of_the_month'] = np.where((df['Day'] <= 7), 'first week',
+                                   np.where((df['Day'] <= 15), 'Second week',
+                                            np.where((df['Day'] < 22), 'Third week', 'Fourth week')))
+
+# Number of items ordered at restaurant by month
+df[['Month','order_id']].groupby('Month')['order_id'].count().reset_index().rename(columns={'order_id':'number_of_items_ordered'})
+
+# creating a calculated column part_of_the_month
+import pandas as pd
+import numpy as np
+
+#adding a calculated column
+df['part_of_the_month'] = np.where((df['Day'] <= 7), 'first week',
+                                   np.where((df['Day'] <= 15), 'Second week',
+                                            np.where((df['Day'] < 22), 'Third week', 'Fourth week')))
+# Number of customers by week
+df[['part_of_the_month','order_id']].drop_duplicates().groupby('part_of_the_month')['order_id'].count().reset_index()
+
+# what were the most ordered items? 
+df.groupby(['item_name'])['order_id'].count().reset_index().sort_values(by='order_id',ascending=False).head(1).rename(columns={'order_id':'number_of_times_ordered'})
+
+# what were the least ordered items? 
+df.groupby(['item_name'])['order_id'].count().reset_index().sort_values(by='order_id').head(1)
+
+# what do the highest spend orders look like? 
+highest_spend_order=df.groupby('order_id')['price'].sum().reset_index().sort_values(by='price',ascending=False).head(1)
+
+# different items ordered by the customer who spent the most
+df.merge(highest_spend_order,on='order_id').groupby(['category','item_name'])['order_id'].count().reset_index().sort_values('order_id',ascending=False).rename(columns={'order_id':'number_of_times'})
+
+#Number of orders in different days of the week
+orders_by_day_name=df[['Weekday','order_id']].drop_duplicates()
+orders_by_day_name.groupby('Weekday')['order_id'].count().reset_index().sort_values(by='order_id',ascending=False).rename(columns={'order_id':'number_of_orders'})
+
+# what are the most selling category on different days of week
+df.groupby(['Weekday','category'])['order_id'].count().reset_index().sort_values(by=['Weekday','order_id'],ascending=[True,False])
+
+# what are the most selling items in different days of the week
+most_selling_item_each_day=df.groupby(['Weekday','item_name'])['order_id'].count().reset_index().sort_values(by=['Weekday','order_id'],ascending=[True,False])
+
+# most selling item on each day of the week
+df1=most_selling_item_each_day.groupby('Weekday')['order_id'].max().reset_index()
+most_selling_item_each_day.merge(df1,on=['Weekday','order_id'])[['Weekday','item_name']]
+
+# average order size on each day of the week
+avg_order_size_by_day_name=df.groupby(['Weekday','order_id'])['item_name'].count().reset_index()
+avg_order_size_by_day_name.groupby('Weekday')['item_name'].mean().round(2)
+
+# average amount spent during different days of the week
+avg_amount_spent_on_different_days_of_the_week=df.groupby(['Weekday','order_id'])['price'].sum().reset_index()
+avg_amount_spent_on_different_days_of_the_week.groupby('Weekday')['price'].mean().round(2).reset_index().sort_values(by=['price'],ascending=False)
+
+# peak hours during different parts of the week
+peak_hours_during_different_parts_of_the_week=df[['Weekday','Hour','order_details_id']].groupby(['Weekday','Hour'])['order_details_id'].count().reset_index().sort_values(by=['Weekday','order_details_id'],ascending=[True,False])
+df1=peak_hours_during_different_parts_of_the_week.groupby('Weekday')['order_details_id'].max().reset_index()
+peak_hours_during_different_parts_of_the_week.merge(df1,on=['Weekday','order_details_id'])[['Weekday','Hour']]
+
+# no rush hours on different parts of the week
+df1=peak_hours_during_different_parts_of_the_week.groupby('Weekday')['order_details_id'].min().reset_index()
+peak_hours_during_different_parts_of_the_week.merge(df1,on=['Weekday','order_details_id'])[['Weekday','Hour']]
+
+# when do we get more customers during different parts of the week during different parts of the day
+df1=df.groupby(['Weekday','part_of_the_day'])['order_details_id'].count().reset_index().sort_values(by=['Weekday','order_details_id'],ascending=[True,False])
+df2=df1.groupby('Weekday')['order_details_id'].max().reset_index()
+df1.merge(df2,on=['Weekday','order_details_id'])[['Weekday','part_of_the_day']]
+
+# what are the least popular item in different days of the week
+df1=df.groupby(['Weekday','item_name'])['order_id'].count().reset_index().sort_values(by=['Weekday','order_id'])
+df2=df1.groupby('Weekday')['order_id'].min().reset_index()
+df1.merge(df2,on=['Weekday','order_id'])[['Weekday','item_name']]
+
+# top 5 products which makes most money
+df.groupby(['category','item_name'])['price'].sum().reset_index().sort_values(by=['price'],ascending=False).head()
+
+# bottom 5 products which make the least money for us
+df.groupby(['category','item_name'])['price'].sum().reset_index().sort_values(by=['price']).head()
+
+# money earned by hour
+df1=df.groupby('Hour')['price'].sum().reset_index().rename(columns={'price':'money_earned'})
+
+# seaborn line plot
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.lineplot(x='Hour',y='money_earned',data=df1)
+plt.xticks(range(10,24))
+plt.show()
+
+# money earned by day of the week
+df.groupby('Weekday')['price'].sum().reset_index().sort_values(by='price',ascending=False).rename(columns={'price':'Money_earned'})
+
+# which category of food we make more money in
+df.groupby('category')['price'].sum().reset_index().sort_values('price',ascending=False).rename(columns={'price':'amount_earned'})
+
+# weekly trend of total money earned
+df=order_details.merge(menu_items,left_on='item_id',right_on='menu_item_id')
+df1=df.groupby('Weeknumber')['price'].sum().reset_index().rename(columns={'price':'amount_earned'})
+
+# seaborn plot of weekly trends
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.lineplot(x='Weeknumber',y='amount_earned',data=df1)
+plt.xticks(range(1, 14))
+plt.show()
+
+
+
+
+
